@@ -1,7 +1,11 @@
 from flask import Flask, json, jsonify, request, Response
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+from dotenv import load_dotenv
+import os
 import hashlib
 
-
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -29,27 +33,31 @@ def Factorial(n):
 			fact = fact*i
 		return jsonify(input=n, output=fact)
 
+slack_token = os.environ["SLACK_BOT_TOKEN"]
+print(os.environ["SLACK_BOT_TOKEN"])
+client = WebClient(token=slack_token)
+
 @app.route('/slack-alert/<string:msg>')
 def slack(msg):
-	SLACK_URL = 'https://hooks.slack.com/services/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'
-    
-	data = { 'text': msg }
-    
-	resp = requests.post(SLACK_URL, json=data)
+	try:
+		response = client.chat_postMessage(
+			channel="C011KJWHA22",
+			text=msg
+		)
+		print("RESPONSE:", response)
+		return jsonify(
+			input=msg,
+			message=msg,
+			output= "Message was successfully sent in slack" if response['ok'] else ''
+		), 200 if response['ok'] else 400
+	except SlackApiError as e:
+		assert e.response["error"]
+		return jsonify(
+			input=msg,
+			message=msg,
+			output=e.response["error"]
+		)
 	
-	if resp.status_code == 200:
-		result = True
-        mesg = "Message successfully posted to Slack channel"
-    
-	else:
-        result = False
-        mesg = "There was a problem posting to the Slack channel (HTTP response: " + str(resp.status_code) + ")."
-
-    return jsonify(
-        input=msg,
-        message=mesg,
-        output=result
-    ), 200 if resp.status_code==200 else 400
 
 if __name__ == "__main__":
     app.run(debug=True)
