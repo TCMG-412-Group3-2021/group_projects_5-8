@@ -37,6 +37,31 @@ slack_token = os.environ["SLACK_BOT_TOKEN"]
 print(os.environ["SLACK_BOT_TOKEN"])
 client = WebClient(token=slack_token)
 
+@app.route('/is-prime/<int:n>')
+def checkPrime(number):
+    isPrime = False
+    if number == 2:
+        isPrime = True
+    if number > 2:
+        isPrime = True
+        for i in range(2, number):
+            if number % i == 0:
+                isPrime = False
+                break
+
+        if isPrime:
+            print('Output: True')
+        else:
+                print('Output: False.',number, 'is not a Prime Number')
+userInput = int(input('Input: '))
+while(userInput>1):
+        checkPrime(userInput)
+        break
+	
+slack_token = os.environ["SLACK_BOT_TOKEN"]
+print(os.environ["SLACK_BOT_TOKEN"])
+client = WebClient(token=slack_token)
+
 @app.route('/slack-alert/<string:msg>')
 def slack(msg):
 	try:
