@@ -58,10 +58,6 @@ while(userInput>1):
         checkPrime(userInput)
         break
 	
-slack_token = os.environ["SLACK_BOT_TOKEN"]
-print(os.environ["SLACK_BOT_TOKEN"])
-client = WebClient(token=slack_token)
-
 @app.route('/slack-alert/<string:msg>')
 def slack(msg):
 	try:
