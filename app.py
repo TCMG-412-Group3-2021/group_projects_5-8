@@ -34,7 +34,7 @@ def Factorial(n):
 		return jsonify(input=n, output=fact)
 
 @app.route('/is-prime/<int:n>')
-def checkPrime(number):
+def is_prime(number):
     isPrime = False
     if number == 2:
         isPrime = True
@@ -45,14 +45,13 @@ def checkPrime(number):
                 isPrime = False
                 break
 
-        if isPrime:
-            print('Output: True')
-        else:
-                print('Output: False.',number, 'is not a Prime Number')
-userInput = int(input('Input: '))
-while(userInput>1):
-        checkPrime(userInput)
-        break
+    if isPrime:
+        print('Output: True')
+    else:
+        print('Output: False.',number, 'is not a Prime Number')
+def prime(x):
+    return jsonify(input=x, output=is_prime(x))
+       
 	
 slack_token = os.environ["SLACK_BOT_TOKEN"]
 print(os.environ["SLACK_BOT_TOKEN"])
