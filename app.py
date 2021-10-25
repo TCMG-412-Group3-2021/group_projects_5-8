@@ -33,10 +33,6 @@ def Factorial(n):
 			fact = fact*i
 		return jsonify(input=n, output=fact)
 
-slack_token = os.environ["SLACK_BOT_TOKEN"]
-print(os.environ["SLACK_BOT_TOKEN"])
-client = WebClient(token=slack_token)
-
 @app.route('/is-prime/<int:n>')
 def checkPrime(number):
     isPrime = False
@@ -57,6 +53,10 @@ userInput = int(input('Input: '))
 while(userInput>1):
         checkPrime(userInput)
         break
+	
+slack_token = os.environ["SLACK_BOT_TOKEN"]
+print(os.environ["SLACK_BOT_TOKEN"])
+client = WebClient(token=slack_token)
 	
 @app.route('/slack-alert/<string:msg>')
 def slack(msg):
