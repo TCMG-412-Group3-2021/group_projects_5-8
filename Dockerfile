@@ -15,7 +15,7 @@
 
  # Define environment variable
  ENV NAME World
- ENV SLACK_BOT_TOKEN=xoxb-73266387591-2613282402611-iaJX9DFbf1UzjOo7YjCHcCVq
+ ENV SLACK_BOT_TOKEN=xoxb-73266387591-2613282402611-TF0Mum0pEaqyEq9VA63r343A
 
  # Run app.py when the container launches  
  CMD ["python", "app.py"]
