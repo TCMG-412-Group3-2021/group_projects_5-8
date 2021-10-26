@@ -1,7 +1,11 @@
 from flask import Flask, json, jsonify, request, Response
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+from dotenv import load_dotenv
+import os
 import hashlib
 
-
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -29,28 +33,72 @@ def Factorial(n):
 			fact = fact*i
 		return jsonify(input=n, output=fact)
 
+@app.route('/is-prime/<int:number>')
+def is_prime(number):
+    isPrime = False
+    if number == 2:
+        isPrime = True
+    if number > 2:
+        isPrime = True
+        for i in range(2, number):
+            if number % i == 0:
+                isPrime = False
+                break
+
+    if isPrime:
+       return jsonify(input=number, output="True")
+    else:
+       return jsonify(input=number, output="False, It is not a prime number.")
+@app.route("/fibonacci/<int:number>")
+def calc_fibonacci(number):
+    fibonacci = [0]
+    c1 = 0
+    c2 = 1
+    fib = 0
+    check = 0
+
+    if number < 0:
+        return jsonify(input=number, output="Error: Please enter a number greater or equal to 0")
+    elif number == 0:
+        fibonacci = [0]
+    else:
+        while check == 0:
+            fib = c1 + c2
+            c2 = c1
+            c1 = fib
+            if fib <= number:
+                fibonacci.append(fib)
+            else:
+                check = 1
+    return jsonify(input=number, output=fibonacci)
+       
+	
+slack_token = os.environ["SLACK_BOT_TOKEN"]
+print(os.environ["SLACK_BOT_TOKEN"])
+client = WebClient(token=slack_token)
+	
 @app.route('/slack-alert/<string:msg>')
 def slack(msg):
-	SLACK_URL = 'https://hooks.slack.com/services/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'
-    
-	data = { 'text': msg }
-    
-	resp = requests.post(SLACK_URL, json=data)
+	try:
+		response = client.chat_postMessage(
+			channel="C011KJWHA22",
+			text=msg
+		)
+		print("RESPONSE:", response)
+		return jsonify(
+			input=msg,
+			message=msg,
+			output= "Message was successfully sent in slack" if response['ok'] else ''
+		), 200 if response['ok'] else 400
+	except SlackApiError as e:
+		assert e.response["error"]
+		return jsonify(
+			input=msg,
+			message=msg,
+			output=e.response["error"]
+		)
 	
-	if resp.status_code == 200:
-		result = True
-        mesg = "Message successfully posted to Slack channel"
-    
-	else:
-        result = False
-        mesg = "There was a problem posting to the Slack channel (HTTP response: " + str(resp.status_code) + ")."
-
-    return jsonify(
-        input=msg,
-        message=mesg,
-        output=result
-    ), 200 if resp.status_code==200 else 400
 
 if __name__ == "__main__":
     app.run(debug=True)
-    app.run(host='0.0.0.0', port = 5000)
+    app.run(host='0.0.0.0', port = 80)
