@@ -46,9 +46,10 @@ def is_prime(number):
                 break
 
     if isPrime:
-       return jsonify(input=number, output="True")
+       return jsonify(input=number, output=True)
     else:
-       return jsonify(input=number, output="False, It is not a prime number.")
+       return jsonify(input=number, output=False)
+
 @app.route("/fibonacci/<int:number>")
 def calc_fibonacci(number):
     fibonacci = [0]
@@ -58,7 +59,7 @@ def calc_fibonacci(number):
     check = 0
 
     if number < 0:
-        return jsonify(input=number, output="Error: Please enter a number greater or equal to 0")
+        return jsonify(input=number, output=False)
     elif number == 0:
         fibonacci = [0]
     else:
@@ -84,11 +85,10 @@ def slack(msg):
 			channel="C011KJWHA22",
 			text=msg
 		)
-		print("RESPONSE:", response)
 		return jsonify(
 			input=msg,
 			message=msg,
-			output= "Message was successfully sent in slack" if response['ok'] else ''
+			output= True if response['ok'] else False
 		), 200 if response['ok'] else 400
 	except SlackApiError as e:
 		assert e.response["error"]
