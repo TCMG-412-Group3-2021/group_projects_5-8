@@ -46,10 +46,10 @@ def is_prime(number):
                 break
 
     if isPrime:
-        print('Output: True')
+        if isPrime:
+		return jsonify(input=number, output="True",is_prime(number))
     else:
-        print('Output: False.',number, 'is not a Prime Number')
-    return jsonify(input=number, output=is_prime(number))
+	return jsonify(input=number, output="False.",number,"is not a prime number.")
 
 @app.route("/fibonacci/<int:number>")
 def calc_fibonacci(number):
