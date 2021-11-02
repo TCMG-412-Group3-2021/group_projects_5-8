@@ -4,10 +4,32 @@ from slack_sdk.errors import SlackApiError
 from dotenv import load_dotenv
 import os
 import hashlib
+import redis
+from redis import RedisError
+
+r = redis.StrictRedis(host='localhost', port=6379)
+r.set('foo', 'bar')
+r.get('foo')
+
 
 load_dotenv()
 
 app = Flask(__name__)
+
+@app.route('/keyval', methods=['POST'])
+def post():
+    payload = request.get_json()
+    v = payload["value"]
+    k = payload["key"]
+    y = f"key is {k} and the value is {v}"
+
+    if request.method == 'POST' and not r.get(k) == None: #if key already exists in redis
+        return jsonify(key=k, value=v, command=y, result=False, error="Key already exists"), 409
+    elif y == RedisError: #if the payload is bad, check
+        return jsonify(key=k, value=v, command=y, result=False, error="Invalid request"), 400
+    else: #create the keyval in redis r.set
+        return jsonify(key=k, value=v, command=y, result=True, error=""), 200
+
 
 @app.route("/")
 def hello_and_welcome():
