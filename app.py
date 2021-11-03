@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 import os
 import hashlib
 import redis
-from redis import RedisError
+from redis import RedisError, Redis
 
 r = redis.StrictRedis(host='localhost', port=6379)
 r.set('foo', 'bar')
@@ -23,13 +23,28 @@ def post():
     k = payload["key"]
     y = f"key is {k} and the value is {v}"
 
-    if request.method == 'POST' and not r.get(k) == None: #if key already exists in redis
+    if r.get(k): #if key already exists in redis
         return jsonify(key=k, value=v, command=y, result=False, error="Key already exists"), 409
     elif y == RedisError: #if the payload is bad, check
         return jsonify(key=k, value=v, command=y, result=False, error="Invalid request"), 400
     else: #create the keyval in redis r.set
+        r.set(k,v)
         return jsonify(key=k, value=v, command=y, result=True, error=""), 200
 
+@app.route('/keyval', methods=['PUT'])
+def put():
+    payload = request.get_json()
+    n = payload["new-value"]
+    b = payload["key"]
+    z = f"key is {b} and the new value is {n}"
+
+    if r.get(b): #if key already exists in redis
+        return jsonify(key=b, newvalue=n, command=z, result=False, error="Key does not exist"), 404
+    elif z == RedisError: #if the payload is bad, check
+        return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request"), 400
+    else: #create the keyval in redis r.set
+        r.set(b,n)
+        return jsonify(key=b, newvalue=n, command=z, result=True, error=""), 200
 
 @app.route("/")
 def hello_and_welcome():
