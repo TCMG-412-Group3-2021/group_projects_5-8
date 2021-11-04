@@ -38,11 +38,11 @@ def put():
     b = payload["key"]
     z = f"key is {b} and the new value is {n}"
 
-    if r.get(b): #if key already exists in redis
+    if r.get(b): #if key does not exist in redis
         return jsonify(key=b, newvalue=n, command=z, result=False, error="Key does not exist"), 404
     elif z == RedisError: #if the payload is bad, check
         return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request"), 400
-    else: #create the keyval in redis r.set
+    else: #create the new value in redis with r.set
         r.set(b,n)
         return jsonify(key=b, newvalue=n, command=z, result=True, error=""), 200
 
