@@ -46,6 +46,32 @@ def put():
         r.set(b,n)
         return jsonify(key=b, newvalue=n, command=z, result=True, error=""), 200
 
+@app.route('/keyval/<string:key>', methods=['GET'])
+def get_key_value(key):
+    _JSON = {
+        'key': key,
+        'value': None,
+        'command': "{} {}".format('RETRIEVE', key),
+        'result': False,
+        'error': None
+    }
+    # trying to connect to redis
+    try:
+        test_value = r.get(key).decode("utf-8")
+    except RedisError:
+        _JSON['error'] = "Cannot connect to redis."
+        return jsonify(_JSON), 400
+
+    # Can't retrieve OR delete if the value doesn't exist
+    if test_value == None:
+        _JSON['error'] = "Key does not exist."
+        return jsonify(_JSON), 404
+    else:
+        _JSON['value'] = test_value
+
+    _JSON['result'] = True
+    return jsonify(_JSON), 200
+
 @app.route("/")
 def hello_and_welcome():
     return jsonify(input='Howdy!', output= 'Welcome to Group 3s API for TCMG 412.')
