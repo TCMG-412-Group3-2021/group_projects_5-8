@@ -26,7 +26,7 @@ def post():
     if r.get(k): #if key already exists in redis
         return jsonify(key=k, value=v, command=y, result=False, error="Key already exists"), 409
     elif y == RedisError: #if the payload is bad, check
-        return jsonify(key=k, value=v, command=y, result=False, error="Invalid request"), 400
+        return jsonify(key=k, value=v, command=y, result=False, error="Invalid request (i.e., invalid JSON)"), 400
     else: #create the keyval in redis r.set
         r.set(k,v)
         return jsonify(key=k, value=v, command=y, result=True, error=""), 200
@@ -41,7 +41,7 @@ def put():
     if r.get(b) == None: #if key does not exist in redis
         return jsonify(key=b, newvalue=n, command=z, result=False, error="Key does not exist"), 404
     elif z == RedisError: #if the payload is bad, check
-        return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request"), 400
+        return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request (i.e., invalid JSON)"), 400
     else: #create the new value in redis with r.set
         r.set(b,n)
         return jsonify(key=b, newvalue=n, command=z, result=True, error=""), 200
@@ -60,12 +60,12 @@ def get_key_value(key):
     try:
         stored_value = r.get(key)
     except RedisError:
-        keyValueJSON['error'] = "Cannot connect to redis."
+        keyValueJSON['error'] = "Invalid request (i.e., invalid JSON)"
         return jsonify(keyValueJSON), 400
 
     # checking to see if the key exists
     if stored_value == None:
-        keyValueJSON['error'] = "Key does not exist."
+        keyValueJSON['error'] = "Key does not exist"
         return jsonify(keyValueJSON), 404
     else:
         keyValueJSON['value'] = stored_value.decode("utf-8")
@@ -86,12 +86,12 @@ def delete_key_value(key):
     try:
         stored_value = r.get(key)
     except RedisError:
-        keyValueJSON['error'] = "Cannot connect to redis."
+        keyValueJSON['error'] = "Invalid request (i.e., invalid JSON)"
         return jsonify(keyValueJSON), 400
 
     # checking to see if the key exists
     if stored_value == None:
-        keyValueJSON['error'] = "Key does not exist."
+        keyValueJSON['error'] = "Key does not exist"
         return jsonify(keyValueJSON), 404
     else:
         keyValueJSON['value'] = stored_value.decode("utf-8")
@@ -101,7 +101,7 @@ def delete_key_value(key):
         keyValueJSON['result'] = True
         return jsonify(keyValueJSON)
     else:
-        keyValueJSON['error'] = f"Unable to delete key (expected return value 1; client returned {ret})"
+        keyValueJSON['error'] = f"Invalid request (i.e., invalid JSON)"
         return jsonify(keyValueJSON), 400
 
 
