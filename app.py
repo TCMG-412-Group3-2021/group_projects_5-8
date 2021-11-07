@@ -26,7 +26,7 @@ def post():
     if r.get(k): #if key already exists in redis
         return jsonify(key=k, value=v, command=y, result=False, error="Key already exists"), 409
     elif y == RedisError: #if the payload is bad, check
-        return jsonify(key=k, value=v, command=y, result=False, error="Invalid request"), 400
+        return jsonify(key=k, value=v, command=y, result=False, error="Invalid request (i.e., invalid JSON)"), 400
     else: #create the keyval in redis r.set
         r.set(k,v)
         return jsonify(key=k, value=v, command=y, result=True, error=""), 200
@@ -34,43 +34,76 @@ def post():
 @app.route('/keyval', methods=['PUT'])
 def put():
     payload = request.get_json()
-    n = payload["new-value"]
+    n = payload["value"]
     b = payload["key"]
     z = f"key is {b} and the new value is {n}"
 
-    if r.get(b): #if key does not exist in redis
+    if r.get(b) == None: #if key does not exist in redis
         return jsonify(key=b, newvalue=n, command=z, result=False, error="Key does not exist"), 404
     elif z == RedisError: #if the payload is bad, check
-        return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request"), 400
+        return jsonify(key=b, newvalue=n, command=z, result=False, error="Invalid request (i.e., invalid JSON)"), 400
     else: #create the new value in redis with r.set
         r.set(b,n)
         return jsonify(key=b, newvalue=n, command=z, result=True, error=""), 200
 
 @app.route('/keyval/<string:key>', methods=['GET'])
 def get_key_value(key):
-    _JSON = {
+    keyValueJSON = {
         'key': key,
         'value': None,
         'command': "{} {}".format('RETRIEVE', key),
         'result': False,
         'error': None
     }
-    # trying to connect to redis
+
+    # decoding value from redis
     try:
-        test_value = r.get(key).decode("utf-8")
+        stored_value = r.get(key)
     except RedisError:
-        _JSON['error'] = "Cannot connect to redis."
-        return jsonify(_JSON), 400
+        keyValueJSON['error'] = "Invalid request (i.e., invalid JSON)"
+        return jsonify(keyValueJSON), 400
 
-    # Can't retrieve OR delete if the value doesn't exist
-    if test_value == None:
-        _JSON['error'] = "Key does not exist."
-        return jsonify(_JSON), 404
+    # checking to see if the key exists
+    if stored_value == None:
+        keyValueJSON['error'] = "Key does not exist"
+        return jsonify(keyValueJSON), 404
     else:
-        _JSON['value'] = test_value
+        keyValueJSON['value'] = stored_value.decode("utf-8")
 
-    _JSON['result'] = True
-    return jsonify(_JSON), 200
+    keyValueJSON['result'] = True
+    return jsonify(keyValueJSON), 200
+
+@app.route('/keyval/<string:key>', methods=['DELETE'])
+def delete_key_value(key):
+    keyValueJSON = {
+        'key': key,
+        'value': None,
+        'command': "{} {}".format('DELETE', key),
+        'result': False,
+        'error': None
+    }
+    # decoding value from redis
+    try:
+        stored_value = r.get(key)
+    except RedisError:
+        keyValueJSON['error'] = "Invalid request (i.e., invalid JSON)"
+        return jsonify(keyValueJSON), 400
+
+    # checking to see if the key exists
+    if stored_value == None:
+        keyValueJSON['error'] = "Key does not exist"
+        return jsonify(keyValueJSON), 404
+    else:
+        keyValueJSON['value'] = stored_value.decode("utf-8")
+
+    deleteResponse = r.delete(key)
+    if deleteResponse == 1:
+        keyValueJSON['result'] = True
+        return jsonify(keyValueJSON)
+    else:
+        keyValueJSON['error'] = f"Invalid request (i.e., invalid JSON)"
+        return jsonify(keyValueJSON), 400
+
 
 @app.route("/")
 def hello_and_welcome():
