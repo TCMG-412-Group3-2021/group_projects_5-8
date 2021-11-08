@@ -7,7 +7,7 @@ import hashlib
 import redis
 from redis import RedisError, Redis
 
-r = redis.StrictRedis(host='localhost', port=6379)
+r = redis.StrictRedis(host='redis-server', port=6379)
 r.set('foo', 'bar')
 r.get('foo')
 
