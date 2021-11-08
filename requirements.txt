@@ -2,4 +2,4 @@
  Redis
  slack-sdk==3.4.2
  python-dotenv==0.15.0
- 
+ redis
