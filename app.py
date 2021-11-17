@@ -1,3 +1,4 @@
+from logging import error
 from flask import Flask, json, jsonify, request, Response
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
@@ -7,7 +8,7 @@ import hashlib
 import redis
 from redis import RedisError, Redis
 
-r = redis.StrictRedis(host='redis-server', port=6379)
+r = redis.StrictRedis(host='127.0.0.1', port=6379)
 r.set('foo', 'bar')
 r.get('foo')
 
@@ -18,9 +19,16 @@ app = Flask(__name__)
 
 @app.route('/keyval', methods=['POST'])
 def post():
-    payload = request.get_json()
-    v = payload["value"]
-    k = payload["key"]
+    # First check for a valid JSON payload
+    try:
+        payload = request.get_json()
+        print(request)
+        k = payload["key"]
+        v = payload["value"]
+    except:
+        print('payload:', payload)
+        return jsonify(result=False, error="Invalid request (i.e., invalid JSON)" ), 400
+    
     y = f"key is {k} and the value is {v}"
 
     if r.get(k): #if key already exists in redis
