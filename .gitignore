@@ -1,2 +1,6 @@
 # API KEYs
 .env
+
+# cache files
+__pycache__
+.pytest_cache
