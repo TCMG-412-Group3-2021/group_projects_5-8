@@ -3,8 +3,9 @@ import typer
 import requests
 
 app = typer.Typer()
-hostName = '10.229.169.116'
 
+f = open('./hostName.txt', 'r')
+hostName = f.readline()
 
 @app.command()
 def keyval(method: str, key: str, value: str):
