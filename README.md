@@ -20,4 +20,3 @@
 ## Testing
 1. Ensure that the IP address within ```hostName.txt``` is updated to match the IP address that the API is running on.
 2. Run the command ```pytest``` to run all of the test cases
-3. If you wish to run a specific
