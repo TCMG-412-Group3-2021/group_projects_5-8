@@ -10,10 +10,10 @@ on:
     branches: [ main ]
 
 jobs:
-  setup-redis: 
-      runs-on: ubuntu-latest
-      steps:
-      - run: ps aux | grep redis && kill -9 1580 && sudo apt install redis-server && redis-server
+#   setup-redis: 
+#       runs-on: ubuntu-latest
+#       steps:
+#       - run: pkill -9 -f redis && sudo apt install redis-server && redis-server
   setup: 
     runs-on: ubuntu-latest
     steps:
