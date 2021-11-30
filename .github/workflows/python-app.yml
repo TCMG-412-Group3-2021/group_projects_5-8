@@ -13,7 +13,7 @@ jobs:
   setup-redis: 
       runs-on: ubuntu-latest
       steps:
-      - run: ps aux | grep redis && sudo apt install redis-server && redis-server
+      - run: ps aux | grep redis && kill -9 8168 && sudo apt install redis-server && redis-server
   setup: 
     runs-on: ubuntu-latest
     steps:
